@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+    </head>
+    <body style="text-align: center;">
+        <h2>Chat Redis - Sub/Pub</h2>
+    
+        <div  id="mensagems">
+
+            <input style="width: 900px; height: 30px; border-radius: 3px; border-color: black;" 
+            id="mensagem" type="text" name="mensagem" placeholder="  Digite a mensagem aqui..." />
+        
+            <button style="border-radius: 3px; border-color: black; 
+            background-color:darkgreen; color: white; width: 70px; 
+            height: 35px; font-weight: bold;"
+             
+             onclick="mensagemEnviar()">Enviar</button>
+             
+             <div style="color: darkgreen; font-size: 15px;" id="chatnome"></div>
+        </div>
+    </body>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io("http://localhost:5000");
+      
+      function mensagemEnviar(){
+        now = new Date();
+        h= now.getHours();
+        m= now.getMinutes();
+        s= now.getSeconds();
+        const time = h+":"+m+":"+s;
+
+          const mensagem = document.querySelector("#mensagem").value
+          if(mensagem.length > 0){
+              socket.emit("mensagem", {mensagem, from: "<%= nome %>", time});
+          }
+      }
+
+      socket.on("mensagem", ({time, from, mensagem}) => {
+         const mensagemElement = document.createElement("h5");
+         mensagemElement.innerText = `[${time}] ${from}:  ${mensagem}`;
+         document.querySelector("#mensagems").appendChild(mensagemElement);
+      });
+
+        socket.on("chatnome", nome => {
+            const element = document.createElement("h5")
+            element.innerText=`${nome} entrou no chat`;
+
+            document.querySelector("#chatnome").appendChild(element);
+        });
+
+    </script>
+</html>
